@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/habit_provider.dart';
 import '../models/habit.dart';
+import 'package:habit_tracker/l10n/app_localizations.dart';
 
 class VacationModeScreen extends StatefulWidget {
   const VacationModeScreen({super.key});
@@ -18,6 +19,7 @@ class _VacationModeScreenState extends State<VacationModeScreen> {
   Widget build(BuildContext context) {
     final provider = Provider.of<HabitProvider>(context);
     final habits = provider.habits;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -34,12 +36,12 @@ class _VacationModeScreenState extends State<VacationModeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Select Pause Period',
+                      l10n.selectPausePeriod,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 8),
                     InkWell(
-                      onTap: _pickDateRange,
+                      onTap: () => _pickDateRange(l10n),
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                         decoration: BoxDecoration(
@@ -51,7 +53,7 @@ class _VacationModeScreenState extends State<VacationModeScreen> {
                           children: [
                             Text(
                               _selectedDateRange == null
-                                  ? 'Select dates'
+                                  ? l10n.selectDates
                                   : '${_formatDate(_selectedDateRange!.start)} - ${_formatDate(_selectedDateRange!.end)}',
                             ),
                             const Icon(Icons.calendar_today),
@@ -74,7 +76,7 @@ class _VacationModeScreenState extends State<VacationModeScreen> {
                 return CheckboxListTile(
                   title: Text(habit.title),
                   subtitle: isPaused 
-                      ? const Text('Currently Paused', style: TextStyle(color: Colors.orange)) 
+                      ? Text(l10n.currentlyPaused, style: const TextStyle(color: Colors.orange)) 
                       : null,
                   value: _selectedHabitIds.contains(habit.id),
                   onChanged: (bool? value) {
@@ -96,9 +98,9 @@ class _VacationModeScreenState extends State<VacationModeScreen> {
               width: double.infinity,
               child: FilledButton(
                 onPressed: _selectedDateRange != null && _selectedHabitIds.isNotEmpty
-                    ? _saveVacationMode
+                    ? () => _saveVacationMode(l10n)
                     : null,
-                child: const Text('Apply Vacation Mode'),
+                child: Text(l10n.applyVacationMode),
               ),
             ),
           ),
@@ -107,14 +109,14 @@ class _VacationModeScreenState extends State<VacationModeScreen> {
     );
   }
 
-  Future<void> _pickDateRange() async {
+  Future<void> _pickDateRange(AppLocalizations l10n) async {
     final DateTime now = DateTime.now();
     final DateTime? start = await showDatePicker(
       context: context,
       initialDate: now,
       firstDate: now.subtract(const Duration(days: 365)),
       lastDate: now.add(const Duration(days: 365)),
-      helpText: 'Select Start Date',
+      helpText: l10n.selectStartDate,
     );
 
     if (start != null) {
@@ -124,7 +126,7 @@ class _VacationModeScreenState extends State<VacationModeScreen> {
         initialDate: start.add(const Duration(days: 1)),
         firstDate: start,
         lastDate: now.add(const Duration(days: 365)),
-        helpText: 'Select End Date',
+        helpText: l10n.selectEndDate,
       );
 
       if (end != null) {
@@ -135,7 +137,7 @@ class _VacationModeScreenState extends State<VacationModeScreen> {
     }
   }
 
-  void _saveVacationMode() {
+  void _saveVacationMode(AppLocalizations l10n) {
     if (_selectedDateRange == null) return;
 
     final provider = Provider.of<HabitProvider>(context, listen: false);
@@ -148,7 +150,7 @@ class _VacationModeScreenState extends State<VacationModeScreen> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Vacation mode applied to ${_selectedHabitIds.length} habits')),
+      SnackBar(content: Text(l10n.vacationModeApplied(_selectedHabitIds.length))),
     );
     Navigator.pop(context);
   }

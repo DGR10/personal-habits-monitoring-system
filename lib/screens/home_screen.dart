@@ -7,6 +7,7 @@ import 'habit_detail_screen.dart';
 import 'settings_screen.dart';
 import 'stats_screen.dart';
 import 'goals_screen.dart';
+import 'package:habit_tracker/l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -39,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       bottomNavigationBar: Provider.of<ThemeProvider>(context).themeStyle == AppThemeStyle.nothing 
-          ? _buildNothingNavigationBar()
+          ? _buildNothingNavigationBar(l10n)
           : NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (index) {
@@ -47,22 +49,22 @@ class _HomeScreenState extends State<HomeScreen> {
             _selectedIndex = index;
           });
         },
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.list),
-            label: 'Habits',
+            icon: const Icon(Icons.list),
+            label: l10n.habits,
           ),
           NavigationDestination(
-            icon: Icon(Icons.bar_chart),
-            label: 'Stats',
+            icon: const Icon(Icons.bar_chart),
+            label: l10n.stats,
           ),
           NavigationDestination(
-            icon: Icon(Icons.flag),
-            label: 'Goals',
+            icon: const Icon(Icons.flag),
+            label: l10n.goals,
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: const Icon(Icons.settings),
+            label: l10n.settingsTitle,
           ),
         ],
       ),
@@ -79,14 +81,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHabitList() {
     final themeStyle = Provider.of<ThemeProvider>(context).themeStyle;
+    final l10n = AppLocalizations.of(context)!;
     
     return Consumer<HabitProvider>(
       builder: (context, provider, child) {
         if (provider.habits.isEmpty) {
-          return const Center(
+          return Center(
             child: Text(
-              'No habits yet. Add one!',
-              style: TextStyle(fontSize: 18, color: Colors.grey),
+              l10n.noHabitsYet,
+              style: const TextStyle(fontSize: 18, color: Colors.grey),
             ),
           );
         }
@@ -152,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   if (!isDueToday)
                                     Text(
-                                      'Not due today',
+                                      l10n.notDueToday,
                                       style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
                                     ),
                                 ],
@@ -250,6 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   void _showHabitOptions(BuildContext context, dynamic habit) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -267,11 +271,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              Text('Options', style: Theme.of(context).textTheme.titleLarge),
+              Text(l10n.options, style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 16),
               ListTile(
                 leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('Delete habit', style: TextStyle(color: Colors.red)),
+                title: Text(l10n.deleteHabit, style: const TextStyle(color: Colors.red)),
                 onTap: () {
                   Navigator.pop(context);
                   _confirmDelete(context, habit);
@@ -279,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.edit),
-                title: const Text('Edit habit'),
+                title: Text(l10n.editHabit),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -292,8 +296,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.info_outline),
-                title: const Text('Habit detail & analytics'),
-                subtitle: const Text('Get detailed analytics for the habit. Track your streak, progress and consistency.'),
+                title: Text(l10n.habitDetail),
+                subtitle: Text(l10n.habitDetailSubtitle),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -313,22 +317,23 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _confirmDelete(BuildContext context, dynamic habit) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Habit'),
-        content: Text('Are you sure you want to delete "${habit.title}"?'),
+        title: Text(l10n.deleteHabitTitle),
+        content: Text(l10n.deleteHabitConfirmation(habit.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
               Provider.of<HabitProvider>(context, listen: false).deleteHabit(habit.id);
               Navigator.pop(context);
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text(l10n.delete, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -421,13 +426,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildNothingNavigationBar() {
+  Widget _buildNothingNavigationBar(AppLocalizations l10n) {
     final color = Theme.of(context).colorScheme.primary;
     final items = [
-      {'icon': Icons.list, 'label': 'HABITS'},
-      {'icon': Icons.bar_chart, 'label': 'STATS'},
-      {'icon': Icons.flag, 'label': 'GOALS'},
-      {'icon': Icons.settings, 'label': 'SETTINGS'},
+      {'icon': Icons.list, 'label': l10n.habits.toUpperCase()},
+      {'icon': Icons.bar_chart, 'label': l10n.stats.toUpperCase()},
+      {'icon': Icons.flag, 'label': l10n.goals.toUpperCase()},
+      {'icon': Icons.settings, 'label': l10n.settingsTitle.toUpperCase()},
     ];
 
     return Container(
@@ -469,6 +474,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   String _getWeekday(int weekday) {
+    // This could also be localized if needed, but for now simple English abbreviations are likely fine or can be mapped.
+    // Ideally use DateFormat from intl package.
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     return days[weekday - 1];
   }

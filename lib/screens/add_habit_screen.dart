@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import 'package:habit_tracker/models/habit_frequency.dart';
 import 'package:habit_tracker/models/habit.dart';
 import 'package:habit_tracker/providers/habit_provider.dart';
+import 'package:habit_tracker/l10n/app_localizations.dart';
 
 class AddHabitScreen extends StatefulWidget {
   final Habit? habit;
@@ -102,16 +104,16 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
     super.dispose();
   }
 
-  void _deleteHabit() {
+  void _deleteHabit(AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Habit'),
-        content: const Text('Are you sure you want to delete this habit?'),
+        title: Text(l10n.deleteHabitTitle),
+        content: Text(l10n.deleteHabitConfirmation(widget.habit!.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -122,7 +124,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
               Navigator.pop(context); // Close dialog
               Navigator.pop(context); // Close screen
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text(l10n.delete, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -166,18 +168,19 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final iconsToShow = _isIconListExpanded 
         ? [..._defaultIcons, ..._extendedIcons] 
         : _defaultIcons;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.habit != null ? 'Edit Habit' : 'Add New Habit'),
+        title: Text(widget.habit != null ? l10n.editHabit : l10n.addNewHabit),
         actions: [
           if (widget.habit != null)
             IconButton(
               icon: const Icon(Icons.delete),
-              onPressed: _deleteHabit,
+              onPressed: () => _deleteHabit(l10n),
             ),
         ],
       ),
@@ -190,13 +193,13 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
             children: [
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Habit Title',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.habitTitle,
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a title';
+                    return l10n.habitTitleError;
                   }
                   return null;
                 },
@@ -204,19 +207,19 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description (Optional)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.descriptionOptional,
+                  border: const OutlineInputBorder(),
                 ),
               ),
               
               const SizedBox(height: 24),
-              Text('Frequency', style: Theme.of(context).textTheme.titleMedium),
+              Text(l10n.frequency, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
-              _buildFrequencySelector(),
+              _buildFrequencySelector(l10n),
               
               const SizedBox(height: 24),
-              Text('Select Icon', style: Theme.of(context).textTheme.titleMedium),
+              Text(l10n.selectIcon, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 16,
@@ -276,7 +279,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                 ],
               ),
               const SizedBox(height: 24),
-              Text('Select Color', style: Theme.of(context).textTheme.titleMedium),
+              Text(l10n.selectColor, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 16,
@@ -310,7 +313,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: _saveHabit,
-                  child: Text(widget.habit != null ? 'Update Habit' : 'Save Habit'),
+                  child: Text(widget.habit != null ? l10n.updateHabit : l10n.saveHabit),
                 ),
               ),
             ],
@@ -320,20 +323,20 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
     );
   }
 
-  Widget _buildFrequencySelector() {
+  Widget _buildFrequencySelector(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         DropdownButtonFormField<FrequencyType>(
           value: _frequencyType,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Type',
+          decoration: InputDecoration(
+            border: const OutlineInputBorder(),
+            labelText: l10n.frequencyType,
           ),
-          items: const [
-            DropdownMenuItem(value: FrequencyType.daily, child: Text('Daily / Every X Days')),
-            DropdownMenuItem(value: FrequencyType.weekly, child: Text('Weekly (Specific Days)')),
-            DropdownMenuItem(value: FrequencyType.interval, child: Text('Interval (X times in Y days)')),
+          items: [
+            DropdownMenuItem(value: FrequencyType.daily, child: Text(l10n.dailyEveryXDays)),
+            DropdownMenuItem(value: FrequencyType.weekly, child: Text(l10n.weeklySpecificDays)),
+            DropdownMenuItem(value: FrequencyType.interval, child: Text(l10n.intervalXTimesInYDays)),
           ],
           onChanged: (value) {
             if (value != null) {
@@ -347,7 +350,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         if (_frequencyType == FrequencyType.daily) ...[
           Row(
             children: [
-              const Text('Every '),
+              Text('${l10n.every} '),
               SizedBox(
                 width: 60,
                 child: TextFormField(
@@ -361,18 +364,25 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                   },
                 ),
               ),
-              const Text(' days'),
+              Text(' ${l10n.days}'),
             ],
           ),
         ] else if (_frequencyType == FrequencyType.weekly) ...[
-          const Text('Select Days:'),
+          Text(l10n.selectDays),
           Wrap(
             spacing: 8,
             children: List.generate(7, (index) {
               final day = index + 1;
               final isSelected = _weekDays.contains(day);
+              // Use DateFormat for short weekdays
+               // Note: DateFormat.E() starts with Mon? No, standard is Mon=1?
+               // Actually, let's just use a simple list or DateFormat if we can get a date.
+               // A trick is to use a known Monday.
+              final date = DateTime(2024, 1, 1).add(Duration(days: index)); // Jan 1 2024 is a Monday
+              final dayName = DateFormat.E(Localizations.localeOf(context).toString()).format(date);
+              
               return FilterChip(
-                label: Text(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][index]),
+                label: Text(dayName),
                 selected: isSelected,
                 onSelected: (selected) {
                   setState(() {
@@ -402,7 +412,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                   },
                 ),
               ),
-              const Text(' times in '),
+              Text(' ${l10n.timesIn} '),
               SizedBox(
                 width: 60,
                 child: TextFormField(
@@ -416,7 +426,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                   },
                 ),
               ),
-              const Text(' days'),
+              Text(' ${l10n.days}'),
             ],
           ),
         ],

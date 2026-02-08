@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../models/habit.dart';
 import '../providers/habit_provider.dart';
 import '../providers/theme_provider.dart';
 import 'add_habit_screen.dart';
+import 'package:habit_tracker/l10n/app_localizations.dart';
 
 class HabitDetailScreen extends StatefulWidget {
   final Habit habit;
@@ -27,6 +29,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
         );
     
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final l10n = AppLocalizations.of(context)!;
     final isNothingTheme = themeProvider.themeStyle == AppThemeStyle.nothing;
     final displayColor = isNothingTheme ? Theme.of(context).colorScheme.primary : Color(habit.colorValue);
 
@@ -84,7 +87,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Current',
+                                l10n.current,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -110,7 +113,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Longest',
+                                l10n.longest,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -140,15 +143,15 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
             
             // Time Range Selector
             if (isNothingTheme)
-              _buildNothingTimeSelector(displayColor)
+              _buildNothingTimeSelector(displayColor, l10n)
             else
               SizedBox(
                 width: double.infinity,
                 child: SegmentedButton<String>(
                   showSelectedIcon: false,
-                  segments: const [
-                    ButtonSegment(value: 'Month', label: Text('Month')),
-                    ButtonSegment(value: 'Year', label: Text('Year')),
+                  segments: [
+                    ButtonSegment(value: 'Month', label: Text(l10n.month)),
+                    ButtonSegment(value: 'Year', label: Text(l10n.year)),
                   ],
                   selected: {_selectedRange},
                   onSelectionChanged: (Set<String> newSelection) {
@@ -162,7 +165,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
 
             // Content Area
             Expanded(
-              child: _buildContent(habit, displayColor),
+              child: _buildContent(habit, displayColor, l10n),
             ),
           ],
         ),
@@ -170,18 +173,18 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
     );
   }
 
-  Widget _buildContent(Habit habit, Color displayColor) {
+  Widget _buildContent(Habit habit, Color displayColor, AppLocalizations l10n) {
     switch (_selectedRange) {
       case 'Month':
-        return _buildMonthView(habit, displayColor);
+        return _buildMonthView(habit, displayColor, l10n);
       case 'Year':
-        return _buildYearView(habit, displayColor);
+        return _buildYearView(habit, displayColor, l10n);
       default:
         return const SizedBox.shrink();
     }
   }
 
-  Widget _buildMonthView(Habit habit, Color displayColor) {
+  Widget _buildMonthView(Habit habit, Color displayColor, AppLocalizations l10n) {
     final daysInMonth = DateUtils.getDaysInMonth(_currentMonth.year, _currentMonth.month);
     final firstDayOfMonth = DateTime(_currentMonth.year, _currentMonth.month, 1);
     final weekdayOffset = firstDayOfMonth.weekday - 1; // 0 for Monday, 6 for Sunday
@@ -194,6 +197,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
       }
     }
     final adherence = (completedCount / daysInMonth * 100).toStringAsFixed(0);
+    final monthName = DateFormat.MMMM(Localizations.localeOf(context).toString()).format(_currentMonth);
 
     return Column(
       children: [
@@ -209,7 +213,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
               },
             ),
             Text(
-              '${_getMonthName(_currentMonth.month)} ${_currentMonth.year}',
+              '$monthName ${_currentMonth.year}',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             IconButton(
@@ -225,7 +229,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
         const SizedBox(height: 8),
         if (Provider.of<ThemeProvider>(context).themeStyle == AppThemeStyle.nothing)
            Text(
-             '[ MONTHLY ADHERENCE: $adherence% ]',
+             '[ ${l10n.monthlyAdherence(adherence)} ]',
              style: TextStyle(
                fontFamily: 'monospace',
                fontWeight: FontWeight.bold,
@@ -240,7 +244,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              'Monthly Adherence: $adherence%',
+              l10n.monthlyAdherence(adherence),
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSecondaryContainer,
                 fontWeight: FontWeight.bold,
@@ -303,7 +307,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
     );
   }
 
-  Widget _buildYearView(Habit habit, Color displayColor) {
+  Widget _buildYearView(Habit habit, Color displayColor, AppLocalizations l10n) {
     final now = DateTime.now();
     final yearStart = DateTime(now.year, 1, 1);
     final daysInYear = DateUtils.getDaysInMonth(now.year, 2) == 29 ? 366 : 365;
@@ -320,7 +324,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildAdherenceHeader('${now.year} Overview', '$adherence%', displayColor),
+        _buildAdherenceHeader(l10n.yearOverview(now.year.toString()), '$adherence%', displayColor, l10n),
         const SizedBox(height: 16),
         Expanded(
           child: GridView.builder(
@@ -355,7 +359,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
     );
   }
 
-  Widget _buildAdherenceHeader(String title, String percentage, Color displayColor) {
+  Widget _buildAdherenceHeader(String title, String percentage, Color displayColor, AppLocalizations l10n) {
     if (Provider.of<ThemeProvider>(context).themeStyle == AppThemeStyle.nothing) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -383,7 +387,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
-            '$percentage Complete',
+            l10n.complete(percentage),
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: Theme.of(context).colorScheme.onSecondaryContainer,
               fontWeight: FontWeight.bold,
@@ -394,21 +398,21 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
     );
   }
 
-  Widget _buildNothingTimeSelector(Color color) {
+  Widget _buildNothingTimeSelector(Color color, AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildNothingSelectorItem('Month', color),
+        _buildNothingSelectorItem('Month', l10n.month, color),
         const SizedBox(width: 32),
-        _buildNothingSelectorItem('Year', color),
+        _buildNothingSelectorItem('Year', l10n.year, color),
       ],
     );
   }
 
-  Widget _buildNothingSelectorItem(String label, Color color) {
-    final isSelected = _selectedRange == label;
+  Widget _buildNothingSelectorItem(String value, String label, Color color) {
+    final isSelected = _selectedRange == value;
     return GestureDetector(
-      onTap: () => setState(() => _selectedRange = label),
+      onTap: () => setState(() => _selectedRange = value),
       child: Container(
         padding: const EdgeInsets.only(bottom: 4),
         decoration: BoxDecoration(
@@ -431,13 +435,5 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
   String _getWeekday(int weekday) {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     return days[weekday - 1];
-  }
-
-  String _getMonthName(int month) {
-    const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    return months[month - 1];
   }
 }

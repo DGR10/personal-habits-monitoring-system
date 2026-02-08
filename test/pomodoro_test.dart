@@ -5,6 +5,9 @@ import 'package:habit_tracker/providers/pomodoro_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:habit_tracker/l10n/app_localizations.dart';
+
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -13,7 +16,19 @@ void main() {
   Widget createScreen() {
     return ChangeNotifierProvider(
       create: (_) => PomodoroProvider(),
-      child: const MaterialApp(home: PomodoroScreen()),
+      child: const MaterialApp(
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: [
+          Locale('en'),
+          Locale('es'),
+        ],
+        home: PomodoroScreen(),
+      ),
     );
   }
 

@@ -5,26 +5,28 @@ import '../providers/goal_provider.dart';
 import '../providers/habit_provider.dart';
 import '../models/goal.dart';
 import '../models/habit.dart';
+import 'package:habit_tracker/l10n/app_localizations.dart';
 
 class GoalsScreen extends StatelessWidget {
   const GoalsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Goals'),
+        title: Text(l10n.goals),
       ),
       body: Consumer<GoalProvider>(
         builder: (context, provider, child) {
           if (provider.goals.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.flag_outlined, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text('No goals set.\nAim high!', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
+                  const Icon(Icons.flag_outlined, size: 64, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  Text(l10n.noGoalsSet, textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey)),
                 ],
               ),
             );
@@ -35,7 +37,7 @@ class GoalsScreen extends StatelessWidget {
             itemCount: provider.goals.length,
             itemBuilder: (context, index) {
               final goal = provider.goals[index];
-              return _buildGoalCard(context, goal);
+              return _buildGoalCard(context, goal, l10n);
             },
           );
         },
@@ -43,12 +45,12 @@ class GoalsScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddGoalDialog(context),
         icon: const Icon(Icons.add),
-        label: const Text('New Goal'),
+        label: Text(l10n.newGoal),
       ),
     );
   }
 
-  Widget _buildGoalCard(BuildContext context, Goal goal) {
+  Widget _buildGoalCard(BuildContext context, Goal goal, AppLocalizations l10n) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
@@ -73,14 +75,14 @@ class GoalsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Deadline: ${DateFormat.yMMMd().format(goal.deadline)}',
+              '${l10n.deadlinePrefix}${DateFormat.yMMMd().format(goal.deadline)}',
               style: TextStyle(color: Colors.grey[600], fontSize: 13),
             ),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Progress', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                Text(l10n.progress, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
                 Text('${(goal.progress * 100).toInt()}%', style: const TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
@@ -96,7 +98,7 @@ class GoalsScreen extends StatelessWidget {
             if (goal.linkedHabitIds.isNotEmpty) ...[
               const Divider(),
               const SizedBox(height: 8),
-              const Text('Linked Habits:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              Text(l10n.linkedHabits, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               SizedBox(
                 height: 30,
@@ -139,13 +141,14 @@ class GoalsScreen extends StatelessWidget {
     final titleController = TextEditingController();
     DateTime selectedDate = DateTime.now().add(const Duration(days: 30));
     List<String> selectedHabitIds = [];
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            title: const Text('New Goal'),
+            title: Text(l10n.newGoal),
             content: SizedBox(
                width: double.maxFinite,
                child: SingleChildScrollView(
@@ -154,11 +157,11 @@ class GoalsScreen extends StatelessWidget {
                    children: [
                      TextField(
                        controller: titleController,
-                       decoration: const InputDecoration(labelText: 'Goal Title', hintText: 'e.g. Run a Marathon'),
+                       decoration: InputDecoration(labelText: l10n.goalTitle, hintText: 'e.g. Run a Marathon'),
                      ),
                      const SizedBox(height: 16),
                      ListTile(
-                       title: const Text('Deadline'),
+                       title: Text(l10n.deadline),
                        subtitle: Text(DateFormat.yMMMd().format(selectedDate)),
                        trailing: const Icon(Icons.calendar_today),
                        onTap: () async {
@@ -172,7 +175,7 @@ class GoalsScreen extends StatelessWidget {
                        },
                      ),
                      const SizedBox(height: 16),
-                     const Text('Link Habits', style: TextStyle(fontWeight: FontWeight.bold)),
+                     Text(l10n.linkHabits, style: const TextStyle(fontWeight: FontWeight.bold)),
                      const SizedBox(height: 8),
                      Consumer<HabitProvider>(
                        builder: (context, habitProvider, child) {
@@ -202,16 +205,16 @@ class GoalsScreen extends StatelessWidget {
                ),
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+              TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
               FilledButton(
                 onPressed: () {
                   if (titleController.text.isNotEmpty) {
                     context.read<GoalProvider>().addGoal(titleController.text, selectedDate, selectedHabitIds);
                     Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Goal created!')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.goalCreated)));
                   }
                 },
-                child: const Text('Create'),
+                child: Text(l10n.create),
               ),
             ],
           );
@@ -223,22 +226,23 @@ class GoalsScreen extends StatelessWidget {
   void _showEditGoalDialog(BuildContext context, Goal goal) {
     final titleController = TextEditingController(text: goal.title);
     double progress = goal.progress;
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            title: const Text('Update Goal'),
+            title: Text(l10n.updateGoal),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                  TextField(
                    controller: titleController,
-                   decoration: const InputDecoration(labelText: 'Title'),
+                   decoration: InputDecoration(labelText: l10n.goalTitle),
                  ),
                  const SizedBox(height: 24),
-                 Text('Progress: ${(progress * 100).toInt()}%'),
+                 Text('${l10n.progress}: ${(progress * 100).toInt()}%'),
                  Slider(
                    value: progress,
                    onChanged: (val) => setState(() => progress = val),
@@ -252,7 +256,7 @@ class GoalsScreen extends StatelessWidget {
                    Navigator.pop(context);
                 },
                 style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: const Text('Delete'),
+                child: Text(l10n.delete),
               ),
               FilledButton(
                 onPressed: () {
@@ -260,7 +264,7 @@ class GoalsScreen extends StatelessWidget {
                    context.read<GoalProvider>().updateGoal(updated);
                    Navigator.pop(context);
                 },
-                child: const Text('Save'),
+                child: Text(l10n.save),
               ),
             ],
           );

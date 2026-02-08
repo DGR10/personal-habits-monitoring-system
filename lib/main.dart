@@ -7,6 +7,10 @@ import 'providers/pomodoro_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/add_habit_screen.dart';
 
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:habit_tracker/l10n/app_localizations.dart';
+import 'providers/locale_provider.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -18,15 +22,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()..loadTheme()), // Reordered and added loadTheme
+        ChangeNotifierProvider(create: (_) => ThemeProvider()..loadTheme()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (_) => HabitProvider()..loadHabits()),
-        ChangeNotifierProvider(create: (_) => GoalProvider()..loadGoals()), // Added GoalProvider
+        ChangeNotifierProvider(create: (_) => GoalProvider()..loadGoals()),
         ChangeNotifierProvider(create: (_) => PomodoroProvider()..loadSettings()),
       ],
-      child: Consumer<ThemeProvider>(
-        builder: (context, themeProvider, child) {
+      child: Consumer2<ThemeProvider, LocaleProvider>(
+        builder: (context, themeProvider, localeProvider, child) {
           return MaterialApp(
-            title: 'Habit Tracker',
+            onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
             theme: themeProvider.themeStyle == AppThemeStyle.nothing
                 ? _buildNothingTheme(Brightness.light)
                 : ThemeData(
@@ -46,6 +51,17 @@ class MyApp extends StatelessWidget {
                     useMaterial3: true,
                   ),
             themeMode: themeProvider.themeMode,
+            locale: localeProvider.locale,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en'), // English
+              Locale('es'), // Spanish
+            ],
             initialRoute: '/',
             routes: {
               '/': (context) => const HomeScreen(),

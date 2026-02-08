@@ -2,21 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/habit_provider.dart';
 import '../models/habit.dart';
+import 'package:habit_tracker/l10n/app_localizations.dart';
 
 class StatsScreen extends StatelessWidget {
   const StatsScreen({super.key});
 
   @override
-  @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Insights'),
+        title: Text(l10n.insights),
       ),
       body: Consumer<HabitProvider>(
         builder: (context, provider, child) {
           if (provider.habits.isEmpty) {
-            return const Center(child: Text('No habits to analyze.'));
+            return Center(child: Text(l10n.noHabitsToAnalyze));
           }
           
           final habits = provider.habits;
@@ -26,13 +27,13 @@ class StatsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildConsistencyHeatmap(context, habits),
+                _buildConsistencyHeatmap(context, habits, l10n),
                 const SizedBox(height: 24),
-                _buildWeeklyTrendChart(context, habits),
+                _buildWeeklyTrendChart(context, habits, l10n),
                 const SizedBox(height: 24),
-                _buildHighlights(context, habits),
+                _buildHighlights(context, habits, l10n),
                 const SizedBox(height: 24),
-                const Text('Habit Breakdown', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(l10n.habitBreakdown, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
                 _buildHabitBreakdown(context, habits),
               ],
@@ -43,7 +44,7 @@ class StatsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildConsistencyHeatmap(BuildContext context, List<Habit> habits) {
+  Widget _buildConsistencyHeatmap(BuildContext context, List<Habit> habits, AppLocalizations l10n) {
     // 3 Months (approx 90 days)
     final now = DateTime.now();
     // Start from 12 weeks ago (84 days) to align weeks better
@@ -52,9 +53,9 @@ class StatsScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Consistency Heatmap', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(l10n.consistencyHeatmap, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
-        const Text('Last 12 weeks', style: TextStyle(color: Colors.grey)),
+        Text(l10n.last12Weeks, style: const TextStyle(color: Colors.grey)),
         const SizedBox(height: 16),
         LayoutBuilder(
           builder: (context, constraints) {
@@ -123,7 +124,7 @@ class StatsScreen extends StatelessWidget {
     return baseColor;
   }
 
-  Widget _buildWeeklyTrendChart(BuildContext context, List<Habit> habits) {
+  Widget _buildWeeklyTrendChart(BuildContext context, List<Habit> habits, AppLocalizations l10n) {
      final now = DateTime.now();
      final weeklyRates = <double>[];
      
@@ -143,7 +144,7 @@ class StatsScreen extends StatelessWidget {
      return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Weekly Momentum', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(l10n.weeklyMomentum, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
         SizedBox(
           height: 150,
@@ -176,7 +177,7 @@ class StatsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHighlights(BuildContext context, List<Habit> habits) {
+  Widget _buildHighlights(BuildContext context, List<Habit> habits, AppLocalizations l10n) {
     // Best Streak
     habits.sort((a, b) => b.streak.compareTo(a.streak));
     final bestStreakHabit = habits.isNotEmpty ? habits.first : null;
@@ -195,9 +196,9 @@ class StatsScreen extends StatelessWidget {
         Expanded(
           child: _buildHighlightCard(
             context, 
-            'On Fire 🔥', 
+            l10n.onFire, 
             bestStreakHabit?.title ?? '-', 
-            '${bestStreakHabit?.streak ?? 0} day streak',
+            '${bestStreakHabit?.streak ?? 0} ${l10n.dayStreak}',
             Colors.orange.shade100,
             Colors.orange.shade800,
           ),
@@ -206,9 +207,9 @@ class StatsScreen extends StatelessWidget {
         Expanded(
           child: _buildHighlightCard(
             context, 
-            'Needs Focus 🎯', 
+            l10n.needsFocus, 
             focusHabit?.title ?? '-', 
-            '${((focusHabit?.getCompletionRateForMonth(DateTime.now()) ?? 0) * 100).toInt()}% this month',
+            '${((focusHabit?.getCompletionRateForMonth(DateTime.now()) ?? 0) * 100).toInt()}% ${l10n.thisMonth}',
             Colors.red.shade100,
             Colors.red.shade800,
           ),

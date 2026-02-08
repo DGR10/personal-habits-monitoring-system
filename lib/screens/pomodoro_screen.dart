@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../providers/pomodoro_provider.dart';
+import 'package:habit_tracker/l10n/app_localizations.dart';
 
 class PomodoroScreen extends StatefulWidget {
   const PomodoroScreen({super.key});
@@ -142,6 +143,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<PomodoroProvider>(context);
+    final l10n = AppLocalizations.of(context)!;
     final totalSeconds = _currentState == PomodoroState.focusing 
         ? provider.focusMinutes * 60 
         : provider.breakMinutes * 60;
@@ -155,7 +157,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pomodoro Timer'),
+        title: Text(l10n.pomodoroTimer),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -179,9 +181,9 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          _currentState == PomodoroState.initial ? 'Ready' : 
-                          _currentState == PomodoroState.completed ? 'Done!' :
-                          _currentState == PomodoroState.breakTime ? 'Break' : 'Focus',
+                          _currentState == PomodoroState.initial ? l10n.ready : 
+                          _currentState == PomodoroState.completed ? l10n.done :
+                          _currentState == PomodoroState.breakTime ? l10n.breakTime : l10n.focus,
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 8),
@@ -192,7 +194,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                           style: Theme.of(context).textTheme.displayLarge?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         if (_currentState != PomodoroState.initial && _currentState != PomodoroState.completed)
-                          Text('Rep $_currentRep / ${provider.totalReps}', style: Theme.of(context).textTheme.titleMedium),
+                          Text('${l10n.rep} $_currentRep / ${provider.totalReps}', style: Theme.of(context).textTheme.titleMedium),
                       ],
                     ),
                   ),
@@ -209,19 +211,19 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                   FilledButton.icon(
                     onPressed: _pauseTimer,
                     icon: const Icon(Icons.pause),
-                    label: const Text('Pause'),
+                    label: Text(l10n.pause),
                   )
                 else
                   FilledButton.icon(
                     onPressed: () => _startTimer(provider),
                     icon: const Icon(Icons.play_arrow),
-                    label: const Text('Start'),
+                    label: Text(l10n.start),
                   ),
                 const SizedBox(width: 16),
                 OutlinedButton.icon(
                   onPressed: () => _resetTimer(provider),
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Reset'),
+                  label: Text(l10n.reset),
                 ),
               ],
             ),
@@ -231,14 +233,14 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
             const SizedBox(height: 16),
             
             // Configuration
-            Text('Configuration', style: Theme.of(context).textTheme.titleLarge),
+            Text(l10n.configuration, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: TextFormField(
                     initialValue: provider.focusMinutes.toString(),
-                    decoration: const InputDecoration(labelText: 'Focus (min)', border: OutlineInputBorder()),
+                    decoration: InputDecoration(labelText: l10n.focusMin, border: const OutlineInputBorder()),
                     keyboardType: TextInputType.number,
                     onChanged: (val) {
                       final newVal = int.tryParse(val);
@@ -252,7 +254,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                 Expanded(
                   child: TextFormField(
                     initialValue: provider.breakMinutes.toString(),
-                    decoration: const InputDecoration(labelText: 'Break (min)', border: OutlineInputBorder()),
+                    decoration: InputDecoration(labelText: l10n.breakMin, border: const OutlineInputBorder()),
                     keyboardType: TextInputType.number,
                     onChanged: (val) {
                       final newVal = int.tryParse(val);
@@ -266,7 +268,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                 Expanded(
                   child: TextFormField(
                     initialValue: provider.totalReps.toString(),
-                    decoration: const InputDecoration(labelText: 'Reps', border: OutlineInputBorder()),
+                    decoration: InputDecoration(labelText: l10n.reps, border: const OutlineInputBorder()),
                     keyboardType: TextInputType.number,
                     onChanged: (val) {
                       final newVal = int.tryParse(val);
@@ -279,11 +281,11 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
               ],
             ),
             const SizedBox(height: 24),
-            Text('Sounds', style: Theme.of(context).textTheme.titleMedium),
+            Text(l10n.sounds, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
-            _buildSoundDropdown('Start Sound', provider.startSound, (val) => provider.updateSettings(startSound: val)),
-            _buildSoundDropdown('Break Sound', provider.breakSound, (val) => provider.updateSettings(breakSound: val)),
-            _buildSoundDropdown('End Sound', provider.endSound, (val) => provider.updateSettings(endSound: val)),
+            _buildSoundDropdown(l10n.startSound, provider.startSound, (val) => provider.updateSettings(startSound: val)),
+            _buildSoundDropdown(l10n.breakSound, provider.breakSound, (val) => provider.updateSettings(breakSound: val)),
+            _buildSoundDropdown(l10n.endSound, provider.endSound, (val) => provider.updateSettings(endSound: val)),
           ],
         ),
       ),
