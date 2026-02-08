@@ -97,5 +97,14 @@
     "year": "Year",
     "monthlyAdherence": "Monthly Adherence: {percentage}%",
     "yearOverview": "{year} Overview",
-    "complete": "{percentage} Complete"
+    "complete": "{percentage} Complete",
+    "themeSettings": "Theme Settings",
+    "themeModeLabel": "Theme Mode",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "themeStyleLabel": "Theme Style",
+    "material": "Material",
+    "minimalist": "Nothing (Minimalist)",
+    "colorTheme": "Color Theme"
 }

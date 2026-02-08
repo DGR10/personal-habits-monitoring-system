@@ -312,4 +312,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String complete(Object percentage) {
     return '$percentage Complete';
   }
+
+  @override
+  String get themeSettings => 'Theme Settings';
+
+  @override
+  String get themeModeLabel => 'Theme Mode';
+
+  @override
+  String get light => 'Light';
+
+  @override
+  String get dark => 'Dark';
+
+  @override
+  String get system => 'System';
+
+  @override
+  String get themeStyleLabel => 'Theme Style';
+
+  @override
+  String get material => 'Material';
+
+  @override
+  String get minimalist => 'Nothing (Minimalist)';
+
+  @override
+  String get colorTheme => 'Color Theme';
 }

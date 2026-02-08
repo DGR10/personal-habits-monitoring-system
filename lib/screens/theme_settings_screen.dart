@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
+import 'package:habit_tracker/l10n/app_localizations.dart';
 
 class ThemeSettingsScreen extends StatelessWidget {
   const ThemeSettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Theme Settings'),
+        title: Text(l10n.themeSettings),
       ),
       body: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
@@ -18,7 +20,7 @@ class ThemeSettingsScreen extends StatelessWidget {
             children: [
               ListTile(
                 leading: const Icon(Icons.brightness_6),
-                title: const Text('Theme Mode'),
+                title: Text(l10n.themeModeLabel),
                 trailing: DropdownButton<ThemeMode>(
                   value: themeProvider.themeMode,
                   onChanged: (ThemeMode? newValue) {
@@ -26,19 +28,19 @@ class ThemeSettingsScreen extends StatelessWidget {
                       themeProvider.setThemeMode(newValue);
                     }
                   },
-                  items: const [
-                    DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
-                    DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
-                    DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
+                  items: [
+                    DropdownMenuItem(value: ThemeMode.system, child: Text(l10n.system)),
+                    DropdownMenuItem(value: ThemeMode.light, child: Text(l10n.light)),
+                    DropdownMenuItem(value: ThemeMode.dark, child: Text(l10n.dark)),
                   ],
                 ),
               ),
               const Divider(),
               const SizedBox(height: 16),
 
-              const Text('Theme Style', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+              Text(l10n.themeStyleLabel, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
               RadioListTile<AppThemeStyle>(
-                title: const Text('Material'),
+                title: Text(l10n.material),
                 value: AppThemeStyle.material,
                 groupValue: themeProvider.themeStyle,
                 onChanged: (value) {
@@ -46,7 +48,7 @@ class ThemeSettingsScreen extends StatelessWidget {
                 },
               ),
               RadioListTile<AppThemeStyle>(
-                title: const Text('Nothing (Minimalist)'),
+                title: Text(l10n.minimalist),
                 value: AppThemeStyle.nothing,
                 groupValue: themeProvider.themeStyle,
                 onChanged: (value) {
@@ -56,7 +58,7 @@ class ThemeSettingsScreen extends StatelessWidget {
               const Divider(),
               if (themeProvider.themeStyle == AppThemeStyle.material) ...[
                 const SizedBox(height: 16),
-                const Text('Color Theme', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                Text(l10n.colorTheme, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 16),
                 Wrap(
                   spacing: 16,

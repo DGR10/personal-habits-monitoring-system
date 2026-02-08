@@ -685,6 +685,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{percentage} Complete'**
   String complete(Object percentage);
+
+  /// No description provided for @themeSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme Settings'**
+  String get themeSettings;
+
+  /// No description provided for @themeModeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme Mode'**
+  String get themeModeLabel;
+
+  /// No description provided for @light.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get light;
+
+  /// No description provided for @dark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get dark;
+
+  /// No description provided for @system.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get system;
+
+  /// No description provided for @themeStyleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme Style'**
+  String get themeStyleLabel;
+
+  /// No description provided for @material.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get material;
+
+  /// No description provided for @minimalist.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing (Minimalist)'**
+  String get minimalist;
+
+  /// No description provided for @colorTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Color Theme'**
+  String get colorTheme;
 }
 
 class _AppLocalizationsDelegate
